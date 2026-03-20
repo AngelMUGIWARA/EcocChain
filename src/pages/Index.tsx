@@ -1,16 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useAuth } from '@/contexts/AuthContext';
+import { LoginPage } from './LoginPage';
+import { AppSidebar } from '@/components/AppSidebar';
+import { EmpresaDashboard } from './dashboard/EmpresaDashboard';
+import { TransportistaDashboard } from './dashboard/TransportistaDashboard';
+import { AcopioDashboard } from './dashboard/AcopioDashboard';
+import { RecicladoraDashboard } from './dashboard/RecicladoraDashboard';
+import { CompradoraDashboard } from './dashboard/CompradoraDashboard';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const DASHBOARD_MAP = {
+  empresa: EmpresaDashboard,
+  transportista: TransportistaDashboard,
+  acopio: AcopioDashboard,
+  recicladora: RecicladoraDashboard,
+  compradora: CompradoraDashboard,
+} as const;
+
+const Index = () => {
+  const { user } = useAuth();
+
+  if (!user) return <LoginPage />;
+
+  const DashboardComponent = DASHBOARD_MAP[user.rol];
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="flex h-screen overflow-hidden">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <DashboardComponent />
+      </main>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
