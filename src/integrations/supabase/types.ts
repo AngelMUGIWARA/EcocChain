@@ -14,10 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      usuarios: {
+        Row: {
+          id: string
+          wallet_address: string
+          nombre: string
+          rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wallet_address: string
+          nombre: string
+          rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          wallet_address?: string
+          nombre?: string
+          rol?: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          created_at?: string
+        }
+        Relationships: []
+      }
+      lotes: {
+        Row: {
+          id: string
+          batch_id: string
+          tipo_residuo: 'PET' | 'vidrio' | 'carton' | 'metal'
+          peso_kg: number
+          peso_recibido: number | null
+          kg_reciclados: number | null
+          estado: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual: string | null
+          empresa_origen: string | null
+          compradora_id: string | null
+          tokens_grt: number
+          tx_hash: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          batch_id: string
+          tipo_residuo: 'PET' | 'vidrio' | 'carton' | 'metal'
+          peso_kg: number
+          peso_recibido?: number | null
+          kg_reciclados?: number | null
+          estado?: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual?: string | null
+          empresa_origen?: string | null
+          compradora_id?: string | null
+          tokens_grt?: number
+          tx_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          batch_id?: string
+          tipo_residuo?: 'PET' | 'vidrio' | 'carton' | 'metal'
+          peso_kg?: number
+          peso_recibido?: number | null
+          kg_reciclados?: number | null
+          estado?: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual?: string | null
+          empresa_origen?: string | null
+          compradora_id?: string | null
+          tokens_grt?: number
+          tx_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transferencias: {
+        Row: {
+          id: string
+          lote_id: string
+          de: string | null
+          para: string | null
+          accion: 'creado' | 'transferido' | 'confirmado' | 'comprado'
+          tx_hash: string | null
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          lote_id: string
+          de?: string | null
+          para?: string | null
+          accion: 'creado' | 'transferido' | 'confirmado' | 'comprado'
+          tx_hash?: string | null
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          lote_id?: string
+          de?: string | null
+          para?: string | null
+          accion?: 'creado' | 'transferido' | 'confirmado' | 'comprado'
+          tx_hash?: string | null
+          timestamp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      v_timeline_lote: {
+        Row: {
+          id: string
+          lote_id: string
+          batch_id: string
+          tipo_residuo: 'PET' | 'vidrio' | 'carton' | 'metal'
+          peso_kg: number
+          tokens_grt: number
+          de_nombre: string | null
+          de_rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora' | null
+          para_nombre: string | null
+          para_rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora' | null
+          accion: 'creado' | 'transferido' | 'confirmado' | 'comprado'
+          tx_hash: string | null
+          timestamp: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

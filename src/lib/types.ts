@@ -1,60 +1,34 @@
-export type Rol = 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora';
+// Re-exports from the authoritative type source.
+// All new code should import from '@/types/database' directly.
+// This file is kept for backwards compatibility with existing components.
+export type {
+  Rol,
+  EstadoLote,
+  TipoResiduo,
+  AccionTransferencia,
+  Usuario,
+  Lote,
+  Transferencia,
+  TimelineItem,
+} from '@/types/database'
 
-export type EstadoLote = 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado';
+// ─── UI utility constants (not in database.ts) ────────────────────────────────
+import type { Rol as RolType, EstadoLote as EstadoLoteType, TipoResiduo as TipoResiduoType } from '@/types/database'
 
-export type TipoResiduo = 'PET' | 'vidrio' | 'cartón' | 'metal';
-
-export interface Usuario {
-  id: string;
-  wallet_address: string;
-  nombre: string;
-  rol: Rol;
-  created_at: string;
-}
-
-export interface Lote {
-  id: string;
-  batch_id: string;
-  tipo_residuo: TipoResiduo;
-  peso_kg: number;
-  peso_recibido?: number;
-  kg_reciclados?: number;
-  estado: EstadoLote;
-  owner_actual: string;
-  empresa_origen: string;
-  tokens_grt: number;
-  tx_hash?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Transferencia {
-  id: string;
-  lote_id: string;
-  de: string;
-  para: string;
-  accion: 'creado' | 'transferido' | 'confirmado' | 'comprado';
-  tx_hash?: string;
-  timestamp: string;
-  // Joined data
-  de_nombre?: string;
-  para_nombre?: string;
-}
-
-export const ROL_LABELS: Record<Rol, string> = {
+export const ROL_LABELS: Record<RolType, string> = {
   empresa: 'Empresa Generadora',
   transportista: 'Transportista',
   acopio: 'Centro de Acopio',
   recicladora: 'Planta Recicladora',
   compradora: 'Empresa Compradora',
-};
+}
 
-export const ESTADO_LABELS: Record<EstadoLote, string> = {
+export const ESTADO_LABELS: Record<EstadoLoteType, string> = {
   pendiente: 'Pendiente',
   en_transito: 'En Tránsito',
   en_acopio: 'En Acopio',
   reciclado: 'Reciclado',
   comprado: 'Comprado',
-};
+}
 
-export const TIPO_RESIDUO_OPTIONS: TipoResiduo[] = ['PET', 'vidrio', 'cartón', 'metal'];
+export const TIPO_RESIDUO_OPTIONS: TipoResiduoType[] = ['PET', 'vidrio', 'carton', 'metal']
