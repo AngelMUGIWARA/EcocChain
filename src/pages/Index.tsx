@@ -6,6 +6,7 @@ import { TransportistaDashboard } from './dashboard/TransportistaDashboard';
 import { AcopioDashboard } from './dashboard/AcopioDashboard';
 import { RecicladoraDashboard } from './dashboard/RecicladoraDashboard';
 import { CompradoraDashboard } from './dashboard/CompradoraDashboard';
+import { Leaf, Loader2 } from 'lucide-react';
 
 const DASHBOARD_MAP = {
   empresa: EmpresaDashboard,
@@ -16,7 +17,18 @@ const DASHBOARD_MAP = {
 } as const;
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background gap-3 text-muted-foreground">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <Leaf className="h-5 w-5" />
+        </div>
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
+  }
 
   if (!user) return <LoginPage />;
 

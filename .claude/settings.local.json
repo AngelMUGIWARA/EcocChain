@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node -e \"const s = require\\(''@stellar/stellar-sdk''\\); console.log\\(''stellar-sdk:'', s.BASE_FEE ? ''OK'' : ''loaded''\\)\")",
+      "Bash(node -e \"console.log\\(''freighter-api:'', require\\(''@stellar/freighter-api''\\) ? ''OK'' : ''loaded''\\)\")",
+      "Bash(node -e \"const pkg = require\\(''./node_modules/@stellar/stellar-sdk/package.json''\\); console.log\\(''stellar-sdk version:'', pkg.version\\)\")",
+      "Bash(node -e \"const pkg = require\\(''./node_modules/@stellar/freighter-api/package.json''\\); console.log\\(''freighter-api version:'', pkg.version\\)\")",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
