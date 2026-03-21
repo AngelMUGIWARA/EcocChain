@@ -26,6 +26,7 @@ export interface TransactionResult {
   txHash: string;
   ledger: number;
   status: 'success' | 'failed';
+  returnValue?: unknown;
 }
 
 export interface BatchResult extends TransactionResult {

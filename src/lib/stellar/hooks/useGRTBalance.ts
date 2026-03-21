@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { grtTokenContract } from '../contracts/grt-token';
+import { getGRTTokenContract } from '../contracts/grt-token';
 
 /**
  * Hook to get GRT token balance for an address
@@ -9,7 +9,7 @@ export function useGRTBalance(address: string | null) {
     queryKey: ['grtBalance', address],
     queryFn: async () => {
       if (!address) return 0;
-      return await grtTokenContract.getBalance(address);
+      return await getGRTTokenContract().getBalance(address);
     },
     enabled: !!address,
     refetchInterval: 10000, // Refetch every 10 seconds
@@ -24,7 +24,7 @@ export function useGRTTotalSupply() {
   return useQuery({
     queryKey: ['grtTotalSupply'],
     queryFn: async () => {
-      return await grtTokenContract.getTotalSupply();
+      return await getGRTTokenContract().getTotalSupply();
     },
     refetchInterval: 30000, // Refetch every 30 seconds
     staleTime: 15000,

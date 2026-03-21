@@ -87,3 +87,8 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER batches_updated_at BEFORE UPDATE ON batches FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Allow browser (anon key) to update batch state after on-chain confirmation
+CREATE POLICY batches_update ON batches
+  FOR UPDATE TO anon, authenticated
+  USING (true) WITH CHECK (true);

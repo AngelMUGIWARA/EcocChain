@@ -1,43 +1,52 @@
-import { batchRegistryContract } from '../contracts/batch-registry';
+import { getBatchRegistryContract } from '../contracts/batch-registry';
 import { freighterService } from '../client/freighter';
-import { sorobanClient } from '../client/soroban-client';
 import { TipoResiduo } from '@/lib/types';
 import { BatchResult, TransactionResult } from '../contracts/contract-types';
 import { fundAccountWithFriendbot, hasSufficientBalance } from '../utils/friendbot';
+import { supabase } from '@/integrations/supabase/client';
 
 export class BatchService {
   /**
    * Create a new batch
    */
   async createBatch(tipoResiduo: TipoResiduo, pesoKg: number): Promise<BatchResult> {
-    // 1. Get wallet public key
     const publicKey = await freighterService.getPublicKey();
 
-    // 2. Check balance and fund if needed
     const hasBalance = await hasSufficientBalance(publicKey);
     if (!hasBalance) {
-      console.log('Insufficient balance, funding account...');
       await fundAccountWithFriendbot(publicKey);
     }
 
-    // 3. Build transaction
-    const xdr = await batchRegistryContract.buildCreateBatchTx(publicKey, tipoResiduo, pesoKg);
-
-    // 4. Sign with Freighter (opens popup)
+    const xdr = await getBatchRegistryContract().buildCreateBatchTx(publicKey, tipoResiduo, pesoKg);
     const signedXdr = await freighterService.signTransaction(xdr);
+    const result = await getBatchRegistryContract().submitSignedTx(signedXdr);
 
-    // 5. Submit to network
-    const result = await batchRegistryContract.submitSignedTx(signedXdr);
+    const batchId = result.returnValue != null ? String(result.returnValue) : Date.now().toString();
 
-    // 6. Extract batch ID from transaction result
-    // In a real scenario, we'd parse the event or return value
-    // For now, we'll fetch the latest batch count as approximation
-    const batchId = Date.now().toString(); // Temporary - should come from contract event
+    await supabase.from('batches').insert({
+      batch_id: batchId,
+      tipo_residuo: tipoResiduo,
+      peso_kg: pesoKg,
+      estado: 'pendiente',
+      owner_actual: publicKey,
+      empresa_origen: publicKey,
+      tokens_grt: 0,
+      creation_tx_hash: result.txHash,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
 
-    return {
-      ...result,
-      batchId,
-    };
+    await supabase.from('transfers').insert({
+      batch_id: batchId,
+      de: publicKey,
+      para: publicKey,
+      accion: 'creado',
+      tx_hash: result.txHash,
+      ledger_number: result.ledger,
+      timestamp: new Date().toISOString(),
+    });
+
+    return { ...result, batchId };
   }
 
   /**
@@ -51,10 +60,25 @@ export class BatchService {
       await fundAccountWithFriendbot(publicKey);
     }
 
-    const xdr = await batchRegistryContract.buildAcceptPickupTx(publicKey, batchId);
+    const xdr = await getBatchRegistryContract().buildAcceptPickupTx(publicKey, batchId);
     const signedXdr = await freighterService.signTransaction(xdr);
+    const result = await getBatchRegistryContract().submitSignedTx(signedXdr);
 
-    return await batchRegistryContract.submitSignedTx(signedXdr);
+    await supabase.from('batches')
+      .update({ estado: 'en_transito', owner_actual: publicKey, last_tx_hash: result.txHash, updated_at: new Date().toISOString() })
+      .eq('batch_id', batchId);
+
+    await supabase.from('transfers').insert({
+      batch_id: batchId,
+      de: publicKey,
+      para: publicKey,
+      accion: 'transferido',
+      tx_hash: result.txHash,
+      ledger_number: result.ledger,
+      timestamp: new Date().toISOString(),
+    });
+
+    return result;
   }
 
   /**
@@ -68,14 +92,26 @@ export class BatchService {
       await fundAccountWithFriendbot(publicKey);
     }
 
-    const xdr = await batchRegistryContract.buildConfirmReceptionTx(
-      publicKey,
-      batchId,
-      pesoRecibido
-    );
+    const xdr = await getBatchRegistryContract().buildConfirmReceptionTx(publicKey, batchId, pesoRecibido);
     const signedXdr = await freighterService.signTransaction(xdr);
+    const result = await getBatchRegistryContract().submitSignedTx(signedXdr);
 
-    return await batchRegistryContract.submitSignedTx(signedXdr);
+    await supabase.from('batches')
+      .update({ estado: 'en_acopio', owner_actual: publicKey, peso_recibido: pesoRecibido, last_tx_hash: result.txHash, updated_at: new Date().toISOString() })
+      .eq('batch_id', batchId);
+
+    await supabase.from('transfers').insert({
+      batch_id: batchId,
+      de: publicKey,
+      para: publicKey,
+      accion: 'confirmado',
+      peso_recibido: pesoRecibido,
+      tx_hash: result.txHash,
+      ledger_number: result.ledger,
+      timestamp: new Date().toISOString(),
+    });
+
+    return result;
   }
 
   /**
@@ -89,20 +125,27 @@ export class BatchService {
       await fundAccountWithFriendbot(publicKey);
     }
 
-    const xdr = await batchRegistryContract.buildConfirmRecyclingTx(
-      publicKey,
-      batchId,
-      kgReciclados
-    );
+    const xdr = await getBatchRegistryContract().buildConfirmRecyclingTx(publicKey, batchId, kgReciclados);
     const signedXdr = await freighterService.signTransaction(xdr);
+    const result = await getBatchRegistryContract().submitSignedTx(signedXdr);
 
-    const result = await batchRegistryContract.submitSignedTx(signedXdr);
+    await supabase.from('batches')
+      .update({ estado: 'reciclado', kg_reciclados: kgReciclados, tokens_grt: kgReciclados, last_tx_hash: result.txHash, updated_at: new Date().toISOString() })
+      .eq('batch_id', batchId);
 
-    // Tokens minted = kg_reciclados (1:1 ratio)
-    return {
-      ...result,
-      tokensMinted: kgReciclados,
-    };
+    await supabase.from('transfers').insert({
+      batch_id: batchId,
+      de: publicKey,
+      para: publicKey,
+      accion: 'confirmado',
+      kg_reciclados: kgReciclados,
+      tokens_emitidos: kgReciclados,
+      tx_hash: result.txHash,
+      ledger_number: result.ledger,
+      timestamp: new Date().toISOString(),
+    });
+
+    return { ...result, tokensMinted: kgReciclados };
   }
 
   /**
@@ -116,17 +159,29 @@ export class BatchService {
       await fundAccountWithFriendbot(publicKey);
     }
 
-    const xdr = await batchRegistryContract.buildPurchaseBatchTx(publicKey, batchId);
+    const xdr = await getBatchRegistryContract().buildPurchaseBatchTx(publicKey, batchId);
     const signedXdr = await freighterService.signTransaction(xdr);
+    const result = await getBatchRegistryContract().submitSignedTx(signedXdr);
 
-    return await batchRegistryContract.submitSignedTx(signedXdr);
+    await supabase.from('batches')
+      .update({ estado: 'comprado', owner_actual: publicKey, last_tx_hash: result.txHash, updated_at: new Date().toISOString() })
+      .eq('batch_id', batchId);
+
+    await supabase.from('transfers').insert({
+      batch_id: batchId,
+      de: publicKey,
+      para: publicKey,
+      accion: 'comprado',
+      tx_hash: result.txHash,
+      ledger_number: result.ledger,
+      timestamp: new Date().toISOString(),
+    });
+
+    return result;
   }
 
-  /**
-   * Get batch data
-   */
   async getBatch(batchId: string) {
-    return await batchRegistryContract.getBatch(batchId);
+    return await getBatchRegistryContract().getBatch(batchId);
   }
 }
 

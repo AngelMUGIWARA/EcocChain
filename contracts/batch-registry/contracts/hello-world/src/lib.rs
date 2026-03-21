@@ -1,7 +1,14 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, token, Address, Env, Symbol, Vec, symbol_short,
+    contract, contractimpl, contracttype, contractclient,
+    Address, Env, Symbol, Vec, symbol_short,
 };
+
+// Minimal client to call mint on the GRT token contract
+#[contractclient(name = "GRTTokenClient")]
+pub trait GRTTokenInterface {
+    fn mint(env: Env, to: Address, amount: i128);
+}
 
 // Storage keys
 const BATCH_COUNTER: Symbol = symbol_short!("B_CTR");
@@ -226,7 +233,7 @@ impl BatchRegistry {
             .get(&DataKey::TokenContract)
             .expect("Token contract not set");
 
-        let token_client = token::Client::new(&env, &token_contract_addr);
+        let token_client = GRTTokenClient::new(&env, &token_contract_addr);
         token_client.mint(&caller, &tokens_to_mint);
 
         let previous_owner = batch.owner_actual.clone();

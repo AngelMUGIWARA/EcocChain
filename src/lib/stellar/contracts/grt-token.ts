@@ -134,5 +134,10 @@ export class GRTTokenContract {
   }
 }
 
-// Export singleton instance
-export const grtTokenContract = new GRTTokenContract();
+// Lazy singleton — only instantiates when first called, so missing CONTRACT_ID
+// does not crash modules that import but don't immediately invoke the contract.
+let _grtTokenInstance: GRTTokenContract | null = null;
+export function getGRTTokenContract(): GRTTokenContract {
+  if (!_grtTokenInstance) _grtTokenInstance = new GRTTokenContract();
+  return _grtTokenInstance;
+}

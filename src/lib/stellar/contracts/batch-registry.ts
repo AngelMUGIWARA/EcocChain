@@ -250,10 +250,16 @@ export class BatchRegistryContract {
       throw new Error('Transaction failed on chain');
     }
 
+    const returnValue =
+      confirmed.status === 'SUCCESS' && 'returnValue' in confirmed && confirmed.returnValue
+        ? scValToNative(confirmed.returnValue)
+        : undefined;
+
     return {
       txHash,
       ledger: 'ledger' in confirmed ? confirmed.ledger : 0,
       status: 'success',
+      returnValue,
     };
   }
 
@@ -309,5 +315,10 @@ export class BatchRegistryContract {
   }
 }
 
-// Export singleton instance
-export const batchRegistryContract = new BatchRegistryContract();
+// Lazy singleton — only instantiates when first called, so missing CONTRACT_ID
+// does not crash modules that import but don't immediately invoke the contract.
+let _batchRegistryInstance: BatchRegistryContract | null = null;
+export function getBatchRegistryContract(): BatchRegistryContract {
+  if (!_batchRegistryInstance) _batchRegistryInstance = new BatchRegistryContract();
+  return _batchRegistryInstance;
+}
