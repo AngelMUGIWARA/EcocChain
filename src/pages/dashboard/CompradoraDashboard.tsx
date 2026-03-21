@@ -1,16 +1,40 @@
 import { StatCard } from '@/components/StatCard';
 import { LoteTable } from '@/components/LoteTable';
 import { LoteDetail } from '@/components/LoteDetail';
-import { MOCK_LOTES } from '@/lib/mock-data';
 import { ShoppingCart, Package, Leaf } from 'lucide-react';
 import { useState } from 'react';
 import { Lote } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBatches } from '@/hooks/useBatches';
+import { useBatchOperations } from '@/lib/stellar/hooks/useBatchOperations';
 
 export function CompradoraDashboard() {
+  const { user } = useAuth();
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
-  const catalogo = MOCK_LOTES.filter(l => l.estado === 'reciclado');
-  const comprados = MOCK_LOTES.filter(l => l.estado === 'comprado');
+  const { purchaseBatch, isLoading: isPurchasing } = useBatchOperations();
+
+  // Fetch available recycled batches (catálogo)
+  const { data: catalogo = [], isLoading: loadingCatalogo } = useBatches({
+    estado: 'reciclado',
+  });
+
+  // Fetch purchased batches (owned by this compradora)
+  const { data: comprados = [], isLoading: loadingComprados } = useBatches({
+    owner: user?.wallet_address,
+    estado: 'comprado',
+  });
+
+  const handlePurchase = async () => {
+    if (!selectedLote) return;
+
+    try {
+      await purchaseBatch(selectedLote.batch_id);
+      setSelectedLote(null);
+    } catch (err) {
+      console.error('Failed to purchase batch:', err);
+    }
+  };
 
   if (selectedLote) {
     return (
@@ -19,7 +43,14 @@ export function CompradoraDashboard() {
         onBack={() => setSelectedLote(null)}
         actionButton={
           selectedLote.estado === 'reciclado' ? (
-            <Button size="sm" className="w-full">Comprar material y firmar</Button>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={handlePurchase}
+              disabled={isPurchasing}
+            >
+              {isPurchasing ? 'Procesando...' : 'Comprar material y firmar'}
+            </Button>
           ) : null
         }
       />
@@ -41,12 +72,20 @@ export function CompradoraDashboard() {
 
       <div>
         <h3 className="text-sm font-medium mb-3">Catálogo de material reciclado</h3>
-        <LoteTable lotes={catalogo} onSelect={setSelectedLote} showTokens />
+        {loadingCatalogo ? (
+          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+        ) : (
+          <LoteTable lotes={catalogo} onSelect={setSelectedLote} showTokens />
+        )}
       </div>
 
       <div>
         <h3 className="text-sm font-medium mb-3">Mis compras</h3>
-        <LoteTable lotes={comprados} onSelect={setSelectedLote} showTokens />
+        {loadingComprados ? (
+          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+        ) : (
+          <LoteTable lotes={comprados} onSelect={setSelectedLote} showTokens />
+        )}
       </div>
     </div>
   );
