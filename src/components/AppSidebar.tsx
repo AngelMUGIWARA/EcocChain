@@ -4,7 +4,7 @@ import { Rol, ROL_LABELS } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
   Factory, Truck, Warehouse, Recycle, ShoppingCart,
-  LayoutDashboard, Package, LogOut, Wallet, ChevronDown, Leaf
+  LayoutDashboard, Package, LogOut, Wallet, ChevronDown, Leaf, Loader2, CheckCircle2
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -19,7 +19,7 @@ const ROL_ICONS: Record<Rol, React.ReactNode> = {
 const ALL_ROLES: Rol[] = ['empresa', 'transportista', 'acopio', 'recicladora', 'compradora'];
 
 export function AppSidebar() {
-  const { user, switchRole, disconnect } = useAuth();
+  const { user, switchRole, disconnect, connectWallet, connectedWallet, isConnecting } = useAuth();
   const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
 
   if (!user) return null;
@@ -75,9 +75,26 @@ export function AppSidebar() {
           </div>
         )}
 
-        <p className="px-2.5 mt-1 font-mono text-[10px] text-sidebar-foreground/30 truncate">
-          {user.wallet_address ?? 'Sin wallet'}
-        </p>
+        {/* Wallet connect */}
+        {connectedWallet || user.wallet_address ? (
+          <div className="flex items-center gap-1.5 px-2.5 mt-1">
+            <CheckCircle2 className="h-3 w-3 shrink-0 text-green-500" />
+            <p className="font-mono text-[10px] text-sidebar-foreground/40 truncate">
+              {(connectedWallet ?? user.wallet_address)!.slice(0, 6)}…{(connectedWallet ?? user.wallet_address)!.slice(-4)}
+            </p>
+          </div>
+        ) : (
+          <button
+            onClick={connectWallet}
+            disabled={isConnecting}
+            className="mt-2 flex w-full items-center gap-2 rounded-md border border-dashed border-sidebar-border px-2.5 py-2 text-xs text-sidebar-foreground/50 transition-colors hover:border-sidebar-primary/50 hover:bg-sidebar-accent hover:text-sidebar-foreground disabled:opacity-50"
+          >
+            {isConnecting
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <Wallet className="h-3.5 w-3.5" />}
+            {isConnecting ? 'Conectando...' : 'Conectar Freighter'}
+          </button>
+        )}
       </div>
 
       {/* Nav */}
