@@ -6,6 +6,7 @@ import {
   getNetwork,
 } from '@stellar/freighter-api';
 import { StellarError, StellarErrorType } from '../contracts/contract-types';
+import { CONFIG } from '../config';
 
 export class FreighterService {
   /**
@@ -89,7 +90,7 @@ export class FreighterService {
    */
   async signTransaction(xdr: string, networkPassphrase?: string): Promise<string> {
     const result = await signTransaction(xdr, {
-      networkPassphrase,
+      networkPassphrase: networkPassphrase ?? CONFIG.networkPassphrase,
     });
     if (result.error) {
       const msg = result.error.message ?? '';

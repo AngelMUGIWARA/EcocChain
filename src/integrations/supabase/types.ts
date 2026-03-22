@@ -14,7 +14,173 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      batches: {
+        Row: {
+          batch_id: string
+          created_at: string
+          creation_tx_hash: string
+          empresa_origen: string
+          estado: string
+          id: string
+          indexed_at: string | null
+          kg_reciclados: number | null
+          last_tx_hash: string | null
+          owner_actual: string
+          peso_kg: number
+          peso_recibido: number | null
+          tipo_residuo: string
+          tokens_grt: number | null
+          updated_at: string
+        }
+        Insert: {
+          batch_id: string
+          created_at: string
+          creation_tx_hash: string
+          empresa_origen: string
+          estado: string
+          id?: string
+          indexed_at?: string | null
+          kg_reciclados?: number | null
+          last_tx_hash?: string | null
+          owner_actual: string
+          peso_kg: number
+          peso_recibido?: number | null
+          tipo_residuo: string
+          tokens_grt?: number | null
+          updated_at: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          creation_tx_hash?: string
+          empresa_origen?: string
+          estado?: string
+          id?: string
+          indexed_at?: string | null
+          kg_reciclados?: number | null
+          last_tx_hash?: string | null
+          owner_actual?: string
+          peso_kg?: number
+          peso_recibido?: number | null
+          tipo_residuo?: string
+          tokens_grt?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sync_status: {
+        Row: {
+          id: string
+          last_synced_at: string
+          last_synced_ledger: number
+          sync_errors: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          last_synced_at?: string
+          last_synced_ledger?: number
+          sync_errors?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          last_synced_at?: string
+          last_synced_ledger?: number
+          sync_errors?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transfers: {
+        Row: {
+          accion: string
+          batch_id: string
+          de: string
+          id: string
+          indexed_at: string | null
+          kg_reciclados: number | null
+          ledger_number: number | null
+          para: string
+          peso_recibido: number | null
+          timestamp: string
+          tokens_emitidos: number | null
+          tx_hash: string
+        }
+        Insert: {
+          accion: string
+          batch_id: string
+          de: string
+          id?: string
+          indexed_at?: string | null
+          kg_reciclados?: number | null
+          ledger_number?: number | null
+          para: string
+          peso_recibido?: number | null
+          timestamp: string
+          tokens_emitidos?: number | null
+          tx_hash: string
+        }
+        Update: {
+          accion?: string
+          batch_id?: string
+          de?: string
+          id?: string
+          indexed_at?: string | null
+          kg_reciclados?: number | null
+          ledger_number?: number | null
+          para?: string
+          peso_recibido?: number | null
+          timestamp?: string
+          tokens_emitidos?: number | null
+          tx_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_batch"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["batch_id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          company_name: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          nombre: string
+          rol: string
+          tx_hash: string | null
+          updated_at: string | null
+          wallet_address: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nombre: string
+          rol: string
+          tx_hash?: string | null
+          updated_at?: string | null
+          wallet_address: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nombre?: string
+          rol?: string
+          tx_hash?: string | null
+          updated_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
