@@ -1,11 +1,11 @@
 import { StatCard } from '@/components/StatCard';
 import { LoteTable } from '@/components/LoteTable';
 import { LoteDetail } from '@/components/LoteDetail';
+import { ExpandableActionButton } from '@/components/ExpandableActionButton';
 import { MOCK_LOTES } from '@/lib/mock-data';
 import { Recycle, Warehouse, Coins } from 'lucide-react';
 import { useState } from 'react';
 import { Lote } from '@/lib/types';
-import { Button } from '@/components/ui/button';
 
 export function RecicladoraDashboard() {
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
@@ -22,10 +22,14 @@ export function RecicladoraDashboard() {
           selectedLote.estado === 'en_acopio' ? (
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-muted-foreground">Kg reales reciclados</label>
+        <label className="text-xs text-EcoTracer-muted">Kg reales reciclados</label>
                 <input type="number" placeholder={String(selectedLote.peso_recibido || selectedLote.peso_kg)} className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm" />
               </div>
-              <Button size="sm" className="w-full">Confirmar reciclaje y emitir tokens</Button>
+              <ExpandableActionButton
+                variant="full"
+                icon={<Recycle className="h-4 w-4" />}
+                label="Confirmar reciclaje y emitir tokens"
+              />
             </div>
           ) : null
         }
@@ -36,8 +40,8 @@ export function RecicladoraDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Planta Recicladora</p>
+        <h2 className="text-2xl font-bold tracking-tight text-EcoTracer-primary">Dashboard</h2>
+        <p className="text-sm text-EcoTracer-muted mt-1">Planta Recicladora</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -47,12 +51,12 @@ export function RecicladoraDashboard() {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Lotes por procesar</h3>
+        <h3 className="text-sm font-bold mb-4 text-EcoTracer-primary">Lotes por procesar</h3>
         <LoteTable lotes={porReciclar} onSelect={setSelectedLote} />
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Historial de reciclaje</h3>
+        <h3 className="text-sm font-medium mb-3 text-EcoTracer-primary">Historial de reciclaje</h3>
         <LoteTable lotes={reciclados} onSelect={setSelectedLote} showTokens />
       </div>
     </div>
