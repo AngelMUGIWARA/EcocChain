@@ -1,0 +1,1 @@
+C:\Users\jnune\OneDrive\Escritorio\8vo\hck2026\green-loop-ledger\contracts\grt-token\target\wasm32v1-none\release\hello_world.wasm: C:\Users\jnune\OneDrive\Escritorio\8vo\hck2026\green-loop-ledger\contracts\grt-token\contracts\hello-world\src\lib.rs C:\Users\jnune\OneDrive\Escritorio\8vo\hck2026\green-loop-ledger\contracts\grt-token\contracts\hello-world\src\test.rs

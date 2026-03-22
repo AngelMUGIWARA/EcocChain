@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:\\\\Users\\\\jnune\\\\OneDrive\\\\Escritorio\\\\8vo\\\\hck2026\\\\green-loop-ledger\\\\src\\\\lib\"\" | grep -E \"stellar)",
+      "Bash(soroban \")",
+      "Bash(npm list:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(cargo install:*)",
+      "Bash(soroban --version)",
+      "Bash(npx eslint:*)"
+    ]
+  }
+}
