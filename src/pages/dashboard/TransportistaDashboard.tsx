@@ -1,16 +1,40 @@
 import { StatCard } from '@/components/StatCard';
 import { LoteTable } from '@/components/LoteTable';
 import { LoteDetail } from '@/components/LoteDetail';
-import { MOCK_LOTES } from '@/lib/mock-data';
 import { Truck, Package, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { Lote } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBatches } from '@/hooks/useBatches';
+import { useBatchOperations } from '@/lib/stellar/hooks/useBatchOperations';
 
 export function TransportistaDashboard() {
+  const { user } = useAuth();
   const [selectedLote, setSelectedLote] = useState<Lote | null>(null);
-  const disponibles = MOCK_LOTES.filter(l => l.estado === 'pendiente');
-  const enTransito = MOCK_LOTES.filter(l => l.estado === 'en_transito' && l.owner_actual === 'u2');
+  const { acceptPickup, isLoading: isAccepting } = useBatchOperations();
+
+  // Fetch available batches (pendiente state)
+  const { data: disponibles = [], isLoading: loadingDisponibles } = useBatches({
+    estado: 'pendiente',
+  });
+
+  // Fetch my batches in transit
+  const { data: enTransito = [], isLoading: loadingEnTransito } = useBatches({
+    owner: user?.wallet_address,
+    estado: 'en_transito',
+  });
+
+  const handleAcceptPickup = async () => {
+    if (!selectedLote) return;
+
+    try {
+      await acceptPickup(selectedLote.batch_id);
+      setSelectedLote(null); // Close detail view
+    } catch (err) {
+      console.error('Failed to accept pickup:', err);
+    }
+  };
 
   if (selectedLote) {
     return (
@@ -19,7 +43,14 @@ export function TransportistaDashboard() {
         onBack={() => setSelectedLote(null)}
         actionButton={
           selectedLote.estado === 'pendiente' ? (
-            <Button size="sm" className="w-full">Aceptar recolección y firmar</Button>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={handleAcceptPickup}
+              disabled={isAccepting}
+            >
+              {isAccepting ? 'Procesando...' : 'Aceptar recolección y firmar'}
+            </Button>
           ) : null
         }
       />
@@ -41,12 +72,20 @@ export function TransportistaDashboard() {
 
       <div>
         <h3 className="text-sm font-medium mb-3">Lotes para recoger</h3>
-        <LoteTable lotes={disponibles} onSelect={setSelectedLote} />
+        {loadingDisponibles ? (
+          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+        ) : (
+          <LoteTable lotes={disponibles} onSelect={setSelectedLote} />
+        )}
       </div>
 
       <div>
         <h3 className="text-sm font-medium mb-3">Mis entregas en curso</h3>
-        <LoteTable lotes={enTransito} onSelect={setSelectedLote} />
+        {loadingEnTransito ? (
+          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+        ) : (
+          <LoteTable lotes={enTransito} onSelect={setSelectedLote} />
+        )}
       </div>
     </div>
   );

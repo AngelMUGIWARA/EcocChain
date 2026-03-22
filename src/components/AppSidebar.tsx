@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Rol, ROL_LABELS } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -62,7 +63,9 @@ export function AppSidebar() {
                 onClick={() => { switchRole(r); setShowRoleSwitcher(false); }}
                 className={cn(
                   'flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors',
-                  r === user.rol ? 'bg-sidebar-primary/20 text-sidebar-primary' : 'hover:bg-sidebar-accent text-sidebar-foreground/70'
+                  r === user.rol
+                    ? 'bg-sidebar-primary/20 text-sidebar-primary'
+                    : 'hover:bg-sidebar-accent text-sidebar-foreground/70'
                 )}
               >
                 {ROL_ICONS[r]}
@@ -71,13 +74,17 @@ export function AppSidebar() {
             ))}
           </div>
         )}
+
+        <p className="px-2.5 mt-1 font-mono text-[10px] text-sidebar-foreground/30 truncate">
+          {user.wallet_address}
+        </p>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 space-y-0.5">
-        <NavItem icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" active />
-        <NavItem icon={<Package className="h-4 w-4" />} label="Lotes" />
-        <NavItem icon={<Wallet className="h-4 w-4" />} label="Wallet" />
+        <NavItem to="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" end />
+        <NavItem to="/lotes" icon={<Package className="h-4 w-4" />} label="Lotes" />
+        <NavItem to="/wallet" icon={<Wallet className="h-4 w-4" />} label="Wallet" />
       </nav>
 
       {/* Footer */}
@@ -94,14 +101,20 @@ export function AppSidebar() {
   );
 }
 
-function NavItem({ icon, label, active = false }: { icon: React.ReactNode; label: string; active?: boolean }) {
+function NavItem({ to, icon, label, end }: { to: string; icon: React.ReactNode; label: string; end?: boolean }) {
   return (
-    <button className={cn(
-      'flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
-      active ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-    )}>
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) => cn(
+        'flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors',
+        isActive
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+          : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+      )}
+    >
       {icon}
       {label}
-    </button>
+    </NavLink>
   );
 }

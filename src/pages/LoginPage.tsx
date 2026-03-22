@@ -1,9 +1,11 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { Rol, ROL_LABELS, TIPO_RESIDUO_OPTIONS } from '@/lib/types';
-import { Leaf, Wallet, Loader2 } from 'lucide-react';
+import { Rol, ROL_LABELS } from '@/lib/types';
+import { Leaf, Wallet, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { freighterService } from '@/lib/stellar/client/freighter';
 
 const ROLES: { rol: Rol; desc: string }[] = [
   { rol: 'empresa', desc: 'Genero residuos reciclables' },
@@ -14,9 +16,15 @@ const ROLES: { rol: Rol; desc: string }[] = [
 ];
 
 export function LoginPage() {
-  const { connectWallet, register, isConnecting, isRegistering } = useAuth();
+  const { connectWallet, register, isConnecting, isRegistering, error } = useAuth();
   const [nombre, setNombre] = useState('');
   const [selectedRol, setSelectedRol] = useState<Rol>('empresa');
+  const [freighterInstalled, setFreighterInstalled] = useState<boolean | null>(null);
+
+  // Check if Freighter is installed on mount
+  useEffect(() => {
+    freighterService.isInstalled().then(setFreighterInstalled);
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -35,12 +43,36 @@ export function LoginPage() {
         {!isRegistering ? (
           /* Connect wallet */
           <div className="rounded-xl border bg-card p-6 shadow-sm opacity-0 animate-fade-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+            {freighterInstalled === false && (
+              <Alert className="mb-4" variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Freighter Wallet no instalado</AlertTitle>
+                <AlertDescription>
+                  Necesitas instalar la extensión Freighter Wallet para usar esta aplicación.
+                  <a
+                    href="https://www.freighter.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 mt-2 text-sm underline"
+                  >
+                    Descargar Freighter <ExternalLink className="h-3 w-3" />
+                  </a>
+                </AlertDescription>
+              </Alert>
+            )}
+
             <p className="text-sm text-center text-muted-foreground mb-5">
               Conecta tu wallet Freighter para comenzar
             </p>
+            {error && (
+              <Alert className="mb-4" variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button
               onClick={connectWallet}
-              disabled={isConnecting}
+              disabled={isConnecting || freighterInstalled === false}
               className="w-full gap-2"
               size="lg"
             >
@@ -99,8 +131,16 @@ export function LoginPage() {
               onClick={() => register(nombre || ROL_LABELS[selectedRol], selectedRol)}
               className="w-full"
               size="lg"
+              disabled={!nombre.trim() || isConnecting}
             >
-              Registrarme
+              {isConnecting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Registrando...
+                </>
+              ) : (
+                'Registrarme'
+              )}
             </Button>
           </div>
         )}

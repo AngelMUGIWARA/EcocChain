@@ -1,16 +1,14 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Rol, Usuario, ROL_LABELS } from '@/lib/types';
-import { MOCK_USERS } from '@/lib/mock-data';
+import React, { createContext, useContext, useState } from 'react';
+import { Rol, Usuario } from '@/lib/types';
+import { useStellarAuth } from '@/lib/stellar/hooks/useStellarAuth';
 
-interface AuthState {
+interface AuthContextType {
   user: Usuario | null;
   isConnecting: boolean;
   isRegistering: boolean;
-}
-
-interface AuthContextType extends AuthState {
-  connectWallet: () => void;
-  register: (nombre: string, rol: Rol) => void;
+  error: string | null;
+  connectWallet: () => Promise<void>;
+  register: (nombre: string, rol: Rol) => Promise<void>;
   switchRole: (rol: Rol) => void;
   disconnect: () => void;
 }
@@ -18,44 +16,25 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isConnecting: false,
-    isRegistering: false,
-  });
+  const stellar = useStellarAuth();
+  const [demoRol, setDemoRol] = useState<Rol | null>(null);
 
-  const connectWallet = useCallback(() => {
-    setState(s => ({ ...s, isConnecting: true }));
-    // Simulate wallet connection delay
-    setTimeout(() => {
-      setState(s => ({ ...s, isConnecting: false, isRegistering: true }));
-    }, 1200);
-  }, []);
-
-  const register = useCallback((nombre: string, rol: Rol) => {
-    const user = MOCK_USERS.find(u => u.rol === rol) || {
-      id: 'u-new',
-      wallet_address: 'GNEW...XXXX',
-      nombre,
-      rol,
-      created_at: new Date().toISOString(),
-    };
-    setState({ user: { ...user, nombre }, isConnecting: false, isRegistering: false });
-  }, []);
-
-  const switchRole = useCallback((rol: Rol) => {
-    const mockUser = MOCK_USERS.find(u => u.rol === rol);
-    if (mockUser) {
-      setState(s => ({ ...s, user: mockUser }));
-    }
-  }, []);
-
-  const disconnect = useCallback(() => {
-    setState({ user: null, isConnecting: false, isRegistering: false });
-  }, []);
+  // Map Stellar hook to Auth context interface
+  const value: AuthContextType = {
+    user: stellar.userProfile
+      ? { ...stellar.userProfile, rol: demoRol ?? stellar.userProfile.rol }
+      : null,
+    isConnecting: stellar.isConnecting,
+    isRegistering: stellar.isRegistering,
+    error: stellar.error?.userMessage ?? null,
+    connectWallet: stellar.connectWallet,
+    register: stellar.registerRole,
+    switchRole: (rol: Rol) => setDemoRol(rol),
+    disconnect: () => { setDemoRol(null); stellar.disconnect(); },
+  };
 
   return (
-    <AuthContext.Provider value={{ ...state, connectWallet, register, switchRole, disconnect }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

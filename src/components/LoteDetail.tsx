@@ -1,5 +1,5 @@
 import { Lote } from '@/lib/types';
-import { MOCK_TRANSFERENCIAS } from '@/lib/mock-data';
+import { useTransfers } from '@/hooks/useTransfers';
 import { LoteTimeline } from './LoteTimeline';
 import { EstadoBadge } from './EstadoBadge';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
@@ -12,7 +12,7 @@ interface LoteDetailProps {
 }
 
 export function LoteDetail({ lote, onBack, actionButton }: LoteDetailProps) {
-  const transferencias = MOCK_TRANSFERENCIAS.filter(t => t.lote_id === lote.id);
+  const { data: transferencias = [] } = useTransfers(lote.batch_id);
 
   return (
     <div className="space-y-6 opacity-0 animate-fade-up" style={{ animationFillMode: 'forwards' }}>
