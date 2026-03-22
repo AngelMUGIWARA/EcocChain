@@ -16,47 +16,47 @@ export function LoteDetail({ lote, onBack, actionButton }: LoteDetailProps) {
 
   return (
     <div className="space-y-6 opacity-0 animate-fade-up" style={{ animationFillMode: 'forwards' }}>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-EcoTracer-muted hover:text-EcoTracer-primary transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Volver
       </button>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Info */}
-        <div className="rounded-lg border bg-card p-5 space-y-4">
+        <div className="rounded-xl border border-EcoTracer-accent/20 bg-EcoTracer-surface p-6 space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Detalle del lote</h3>
+            <h3 className="font-bold text-lg text-EcoTracer-primary">Detalle del lote</h3>
             <EstadoBadge estado={lote.estado} />
           </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm">
+          <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-muted-foreground text-xs">Batch ID</dt>
-              <dd className="font-mono text-xs mt-0.5">{lote.batch_id}</dd>
+              <dt className="text-xs font-semibold text-EcoTracer-muted">Batch ID</dt>
+              <dd className="font-mono text-xs font-semibold mt-1.5 text-EcoTracer-primary">{lote.batch_id}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground text-xs">Tipo</dt>
-              <dd className="mt-0.5">{lote.tipo_residuo}</dd>
+              <dt className="text-xs font-semibold text-EcoTracer-muted">Tipo</dt>
+              <dd className="mt-1.5 text-EcoTracer-primary">{lote.tipo_residuo}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground text-xs">Peso original</dt>
-              <dd className="mt-0.5 tabular-nums">{lote.peso_kg} kg</dd>
+              <dt className="text-xs font-semibold text-EcoTracer-muted">Peso original</dt>
+              <dd className="mt-1.5 font-mono tabular-nums text-EcoTracer-primary">{lote.peso_kg} kg</dd>
             </div>
             {lote.peso_recibido && (
               <div>
-                <dt className="text-muted-foreground text-xs">Peso recibido</dt>
-                <dd className="mt-0.5 tabular-nums">{lote.peso_recibido} kg</dd>
+                <dt className="text-xs font-semibold text-EcoTracer-muted">Peso recibido</dt>
+                <dd className="mt-1.5 font-mono tabular-nums text-EcoTracer-primary">{lote.peso_recibido} kg</dd>
               </div>
             )}
             {lote.kg_reciclados && (
               <div>
-                <dt className="text-muted-foreground text-xs">Kg reciclados</dt>
-                <dd className="mt-0.5 tabular-nums">{lote.kg_reciclados} kg</dd>
+                <dt className="text-xs font-semibold text-EcoTracer-muted">Kg reciclados</dt>
+                <dd className="mt-1.5 font-mono tabular-nums text-EcoTracer-primary">{lote.kg_reciclados} kg</dd>
               </div>
             )}
             {lote.tokens_grt > 0 && (
               <div>
-                <dt className="text-muted-foreground text-xs">Tokens GRT</dt>
-                <dd className="mt-0.5 font-semibold text-token-foreground tabular-nums">{lote.tokens_grt}</dd>
+                <dt className="text-xs font-semibold text-EcoTracer-muted">Tokens GRT</dt>
+                <dd className="mt-1.5 font-mono font-bold text-EcoTracer-accent tabular-nums">{lote.tokens_grt} GRT</dd>
               </div>
             )}
           </dl>
@@ -65,18 +65,18 @@ export function LoteDetail({ lote, onBack, actionButton }: LoteDetailProps) {
               href={`https://stellar.expert/explorer/testnet/tx/${lote.tx_hash}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              className="inline-flex items-center gap-1 font-mono text-xs text-EcoTracer-accent/80 hover:text-EcoTracer-accent transition-colors"
             >
               <ExternalLink className="h-3 w-3" />
               Ver última TX en Stellar Explorer
             </a>
           )}
-          {actionButton && <div className="pt-2">{actionButton}</div>}
+          {actionButton && <div className="pt-4 border-t border-EcoTracer-accent/20">{actionButton}</div>}
         </div>
 
         {/* Timeline */}
-        <div className="rounded-lg border bg-card p-5">
-          <h3 className="font-semibold mb-4">Trazabilidad</h3>
+        <div className="rounded-xl border border-EcoTracer-accent/20 bg-EcoTracer-surface p-6">
+          <h3 className="font-bold text-lg text-EcoTracer-primary mb-5">Trazabilidad</h3>
           {transferencias.length > 0 ? (
             <LoteTimeline
               transferencias={transferencias}
@@ -84,7 +84,7 @@ export function LoteDetail({ lote, onBack, actionButton }: LoteDetailProps) {
               tokensGrt={lote.tokens_grt}
             />
           ) : (
-            <p className="text-sm text-muted-foreground">Sin historial de transferencias</p>
+            <p className="text-sm text-EcoTracer-muted">Sin historial de transferencias</p>
           )}
         </div>
       </div>

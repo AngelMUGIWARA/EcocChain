@@ -12,27 +12,41 @@ export function StatCard({ label, value, icon, variant = 'default', delay = 0 }:
   return (
     <div
       className={cn(
-        'rounded-lg border bg-card p-5 shadow-sm transition-shadow duration-200 hover:shadow-md',
+        'rounded-xl border p-6 transition-all duration-200',
         'opacity-0 animate-fade-up',
-        variant === 'token' && 'border-token/30 bg-token/5'
+        variant === 'token'
+          ? 'border-EcoTracer-accent/30 bg-EcoTracer-primary text-white animate-pulse-token'
+          : 'border-EcoTracer-accent/20 bg-EcoTracer-surface hover:border-EcoTracer-accent/40'
       )}
       style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">{label}</span>
         <span className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-md',
-          variant === 'token' ? 'bg-token/15 text-token' : 'bg-secondary text-primary'
+          'text-sm font-medium',
+          variant === 'token' ? 'text-white/60' : 'text-EcoTracer-muted'
+        )}>
+          {label}
+        </span>
+        <span className={cn(
+          'flex h-10 w-10 items-center justify-center rounded-lg',
+          variant === 'token'
+            ? 'bg-EcoTracer-accent/20 text-EcoTracer-accent'
+            : 'bg-EcoTracer-primary/10 text-EcoTracer-primary'
         )}>
           {icon}
         </span>
       </div>
-      <p className={cn(
-        'mt-2 text-2xl font-semibold tabular-nums tracking-tight',
-        variant === 'token' && 'text-token-foreground'
-      )}>
-        {value}
-      </p>
+
+      {variant === 'token' ? (
+        <p className="mt-3 font-mono text-5xl font-black tabular-nums tracking-tight text-EcoTracer-accent">
+          {value}
+          <span className="ml-2 text-sm font-semibold text-EcoTracer-accent/60">GRT</span>
+        </p>
+      ) : (
+        <p className="mt-3 text-3xl font-bold tabular-nums tracking-tight text-EcoTracer-primary">
+          {value}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPage } from './LoginPage';
-import { AppSidebar } from '@/components/AppSidebar';
+import { FloatingNavbar } from '@/components/FloatingNavbar';
 import { EmpresaDashboard } from './dashboard/EmpresaDashboard';
 import { TransportistaDashboard } from './dashboard/TransportistaDashboard';
 import { AcopioDashboard } from './dashboard/AcopioDashboard';
@@ -23,9 +23,9 @@ const Index = () => {
   const DashboardComponent = DASHBOARD_MAP[user.rol];
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <AppSidebar />
-      <main className="flex-1 overflow-y-auto p-6 md:p-8">
+    <div className="h-screen overflow-hidden bg-EcoTracer-secondary">
+      <FloatingNavbar />
+      <main className="h-screen ml-20 overflow-y-auto bg-EcoTracer-secondary p-6 md:p-8">
         <DashboardComponent />
       </main>
     </div>
