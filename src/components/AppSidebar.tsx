@@ -76,7 +76,7 @@ export function AppSidebar() {
         )}
 
         <p className="px-2.5 mt-1 font-mono text-[10px] text-sidebar-foreground/30 truncate">
-          {user.wallet_address}
+          {user.wallet_address ?? 'Sin wallet'}
         </p>
       </div>
 

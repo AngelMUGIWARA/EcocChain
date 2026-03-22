@@ -7,315 +7,203 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.4"
-  }
   public: {
     Tables: {
-      batches: {
+      users: {
         Row: {
-          batch_id: string
-          created_at: string
-          creation_tx_hash: string
-          empresa_origen: string
-          estado: string
           id: string
-          indexed_at: string | null
-          kg_reciclados: number | null
-          last_tx_hash: string | null
-          owner_actual: string
-          peso_kg: number
-          peso_recibido: number | null
-          tipo_residuo: string
-          tokens_grt: number | null
+          wallet_address: string | null
+          nombre: string
+          rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          email: string | null
+          company_name: string | null
+          tx_hash: string | null
+          created_at: string
           updated_at: string
         }
         Insert: {
-          batch_id: string
-          created_at: string
-          creation_tx_hash: string
-          empresa_origen: string
-          estado: string
-          id?: string
-          indexed_at?: string | null
-          kg_reciclados?: number | null
-          last_tx_hash?: string | null
-          owner_actual: string
-          peso_kg: number
-          peso_recibido?: number | null
-          tipo_residuo: string
-          tokens_grt?: number | null
-          updated_at: string
-        }
-        Update: {
-          batch_id?: string
+          id: string
+          wallet_address?: string | null
+          nombre: string
+          rol: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          email?: string | null
+          company_name?: string | null
+          tx_hash?: string | null
           created_at?: string
-          creation_tx_hash?: string
-          empresa_origen?: string
-          estado?: string
-          id?: string
-          indexed_at?: string | null
-          kg_reciclados?: number | null
-          last_tx_hash?: string | null
-          owner_actual?: string
-          peso_kg?: number
-          peso_recibido?: number | null
-          tipo_residuo?: string
-          tokens_grt?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Update: {
+          id?: string
+          wallet_address?: string | null
+          nombre?: string
+          rol?: 'empresa' | 'transportista' | 'acopio' | 'recicladora' | 'compradora'
+          email?: string | null
+          company_name?: string | null
+          tx_hash?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'users_id_fkey'
+            columns: ['id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          }
+        ]
       }
-      sync_status: {
+      batches: {
         Row: {
           id: string
-          last_synced_at: string
-          last_synced_ledger: number
-          sync_errors: number | null
-          updated_at: string | null
+          batch_id: string
+          tipo_residuo: 'PET' | 'vidrio' | 'cartón' | 'metal'
+          peso_kg: number
+          peso_recibido: number
+          kg_reciclados: number
+          estado: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual: string
+          empresa_origen: string
+          tokens_grt: number
+          creation_tx_hash: string
+          last_tx_hash: string | null
+          created_at: string
+          updated_at: string
+          indexed_at: string
         }
         Insert: {
           id?: string
-          last_synced_at?: string
-          last_synced_ledger?: number
-          sync_errors?: number | null
-          updated_at?: string | null
+          batch_id: string
+          tipo_residuo: 'PET' | 'vidrio' | 'cartón' | 'metal'
+          peso_kg: number
+          peso_recibido?: number
+          kg_reciclados?: number
+          estado: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual: string
+          empresa_origen: string
+          tokens_grt?: number
+          creation_tx_hash: string
+          last_tx_hash?: string | null
+          created_at: string
+          updated_at: string
+          indexed_at?: string
         }
         Update: {
           id?: string
-          last_synced_at?: string
-          last_synced_ledger?: number
-          sync_errors?: number | null
-          updated_at?: string | null
+          batch_id?: string
+          tipo_residuo?: 'PET' | 'vidrio' | 'cartón' | 'metal'
+          peso_kg?: number
+          peso_recibido?: number
+          kg_reciclados?: number
+          estado?: 'pendiente' | 'en_transito' | 'en_acopio' | 'reciclado' | 'comprado'
+          owner_actual?: string
+          empresa_origen?: string
+          tokens_grt?: number
+          creation_tx_hash?: string
+          last_tx_hash?: string | null
+          created_at?: string
+          updated_at?: string
+          indexed_at?: string
         }
         Relationships: []
       }
       transfers: {
         Row: {
-          accion: string
+          id: string
           batch_id: string
           de: string
-          id: string
-          indexed_at: string | null
-          kg_reciclados: number | null
-          ledger_number: number | null
           para: string
+          accion: 'creado' | 'transferido' | 'confirmado' | 'comprado'
           peso_recibido: number | null
-          timestamp: string
+          kg_reciclados: number | null
           tokens_emitidos: number | null
           tx_hash: string
+          ledger_number: number | null
+          timestamp: string
         }
         Insert: {
-          accion: string
+          id?: string
           batch_id: string
           de: string
-          id?: string
-          indexed_at?: string | null
-          kg_reciclados?: number | null
-          ledger_number?: number | null
           para: string
+          accion: 'creado' | 'transferido' | 'confirmado' | 'comprado'
           peso_recibido?: number | null
-          timestamp: string
+          kg_reciclados?: number | null
           tokens_emitidos?: number | null
           tx_hash: string
+          ledger_number?: number | null
+          timestamp: string
         }
         Update: {
-          accion?: string
+          id?: string
           batch_id?: string
           de?: string
-          id?: string
-          indexed_at?: string | null
-          kg_reciclados?: number | null
-          ledger_number?: number | null
           para?: string
+          accion?: 'creado' | 'transferido' | 'confirmado' | 'comprado'
           peso_recibido?: number | null
-          timestamp?: string
+          kg_reciclados?: number | null
           tokens_emitidos?: number | null
           tx_hash?: string
+          ledger_number?: number | null
+          timestamp?: string
         }
         Relationships: [
           {
-            foreignKeyName: "fk_batch"
-            columns: ["batch_id"]
+            foreignKeyName: 'fk_batch'
+            columns: ['batch_id']
             isOneToOne: false
-            referencedRelation: "batches"
-            referencedColumns: ["batch_id"]
-          },
+            referencedRelation: 'batches'
+            referencedColumns: ['batch_id']
+          }
         ]
       }
-      users: {
+      sync_status: {
         Row: {
-          company_name: string | null
-          created_at: string | null
-          email: string | null
           id: string
-          nombre: string
-          rol: string
-          tx_hash: string | null
-          updated_at: string | null
-          wallet_address: string
+          last_synced_ledger: number
+          last_synced_at: string
         }
         Insert: {
-          company_name?: string | null
-          created_at?: string | null
-          email?: string | null
           id?: string
-          nombre: string
-          rol: string
-          tx_hash?: string | null
-          updated_at?: string | null
-          wallet_address: string
+          last_synced_ledger: number
+          last_synced_at?: string
         }
         Update: {
-          company_name?: string | null
-          created_at?: string | null
-          email?: string | null
           id?: string
-          nombre?: string
-          rol?: string
-          tx_hash?: string | null
-          updated_at?: string | null
-          wallet_address?: string
+          last_synced_ledger?: number
+          last_synced_at?: string
         }
         Relationships: []
       }
     }
-    Views: {
-      [_ in never]: never
-    }
+    Views: Record<string, never>
     Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
-
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+      create_user_profile: {
+        Args: {
+          p_id: string
+          p_nombre: string
+          p_rol: string
+          p_email?: string | null
+          p_wallet?: string | null
+        }
+        Returns: undefined
       }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
     }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
 
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+type PublicSchema = Database['public']
 
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+export type Tables<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Row']
 
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+export type TablesInsert<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Insert']
+
+export type TablesUpdate<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Update']
+
+export type Enums<T extends keyof PublicSchema['Enums']> =
+  PublicSchema['Enums'][T]

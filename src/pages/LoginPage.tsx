@@ -1,34 +1,31 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { Rol, ROL_LABELS } from '@/lib/types';
-import { Leaf, Wallet, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { freighterService } from '@/lib/stellar/client/freighter';
-
-const ROLES: { rol: Rol; desc: string }[] = [
-  { rol: 'empresa', desc: 'Genero residuos reciclables' },
-  { rol: 'transportista', desc: 'Transporto residuos a centros de acopio' },
-  { rol: 'acopio', desc: 'Recibo y clasifico materiales' },
-  { rol: 'recicladora', desc: 'Proceso y reciclo materiales' },
-  { rol: 'compradora', desc: 'Compro material reciclado certificado' },
-];
+import { useNavigate } from 'react-router-dom';
 
 export function LoginPage() {
-  const { connectWallet, register, isConnecting, isRegistering, error } = useAuth();
-  const [nombre, setNombre] = useState('');
-  const [selectedRol, setSelectedRol] = useState<Rol>('empresa');
-  const [freighterInstalled, setFreighterInstalled] = useState<boolean | null>(null);
+  const { login, user, isConnecting, error, clearError } = useAuth();
+  const navigate = useNavigate();
 
-  // Check if Freighter is installed on mount
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
-    freighterService.isInstalled().then(setFreighterInstalled);
-  }, []);
+    if (user) navigate('/', { replace: true });
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    await login(email, password);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-6">
+
         {/* Brand */}
         <div className="text-center opacity-0 animate-fade-up" style={{ animationFillMode: 'forwards' }}>
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
@@ -40,110 +37,91 @@ export function LoginPage() {
           </p>
         </div>
 
-        {!isRegistering ? (
-          /* Connect wallet */
-          <div className="rounded-xl border bg-card p-6 shadow-sm opacity-0 animate-fade-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
-            {freighterInstalled === false && (
-              <Alert className="mb-4" variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Freighter Wallet no instalado</AlertTitle>
-                <AlertDescription>
-                  Necesitas instalar la extensión Freighter Wallet para usar esta aplicación.
-                  <a
-                    href="https://www.freighter.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 mt-2 text-sm underline"
-                  >
-                    Descargar Freighter <ExternalLink className="h-3 w-3" />
-                  </a>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <p className="text-sm text-center text-muted-foreground mb-5">
-              Conecta tu wallet Freighter para comenzar
-            </p>
-            {error && (
-              <Alert className="mb-4" variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <Button
-              onClick={connectWallet}
-              disabled={isConnecting || freighterInstalled === false}
-              className="w-full gap-2"
-              size="lg"
-            >
-              {isConnecting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Wallet className="h-4 w-4" />
-              )}
-              {isConnecting ? 'Conectando...' : 'Conectar Freighter'}
-            </Button>
-            <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              Red: Stellar Testnet
+        {/* Card */}
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border bg-card p-6 shadow-sm space-y-4 opacity-0 animate-fade-up"
+          style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+        >
+          <div>
+            <h2 className="text-base font-semibold">Iniciar sesión</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Ingresa con tu correo y contraseña
             </p>
           </div>
-        ) : (
-          /* Register */
-          <div className="rounded-xl border bg-card p-6 shadow-sm space-y-5 opacity-0 animate-scale-in" style={{ animationFillMode: 'forwards' }}>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Nombre / Empresa</label>
+
+          {/* Error */}
+          {error && (
+            <div className="flex items-start gap-2.5 rounded-lg bg-destructive/10 border border-destructive/20 px-3.5 py-3 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>{error}</span>
+              <button type="button" onClick={clearError} className="ml-auto text-destructive/60 hover:text-destructive">✕</button>
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Correo electrónico</label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
-                value={nombre}
-                onChange={e => setNombre(e.target.value)}
-                placeholder="Ej. Envases del Bajío S.A."
-                className="mt-1.5 w-full rounded-md border bg-background px-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-ring/20"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="correo@empresa.com"
+                required
+                disabled={isConnecting}
+                className="w-full rounded-md border bg-background pl-9 pr-3 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
               />
             </div>
-
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Selecciona tu rol</label>
-              <div className="mt-2 space-y-1.5">
-                {ROLES.map(({ rol, desc }) => (
-                  <button
-                    key={rol}
-                    onClick={() => setSelectedRol(rol)}
-                    className={cn(
-                      'flex w-full items-start gap-3 rounded-lg border px-3.5 py-3 text-left text-sm transition-all',
-                      selectedRol === rol
-                        ? 'border-primary bg-primary/5 shadow-sm'
-                        : 'border-border hover:border-primary/30 hover:bg-muted/50'
-                    )}
-                  >
-                    <div className={cn(
-                      'mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 transition-colors',
-                      selectedRol === rol ? 'border-primary bg-primary' : 'border-muted-foreground/30'
-                    )} />
-                    <div>
-                      <p className="font-medium text-sm">{ROL_LABELS[rol]}</p>
-                      <p className="text-xs text-muted-foreground">{desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              onClick={() => register(nombre || ROL_LABELS[selectedRol], selectedRol)}
-              className="w-full"
-              size="lg"
-              disabled={!nombre.trim() || isConnecting}
-            >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Registrando...
-                </>
-              ) : (
-                'Registrarme'
-              )}
-            </Button>
           </div>
-        )}
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Contraseña</label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Tu contraseña"
+                required
+                disabled={isConnecting}
+                className="w-full rounded-md border bg-background pl-9 pr-10 py-2.5 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isConnecting || !email || !password}
+            className="w-full gap-2"
+            size="lg"
+          >
+            {isConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+            {isConnecting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+          </Button>
+        </form>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-muted-foreground opacity-0 animate-fade-up" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
+          ¿No tienes cuenta?{' '}
+          <button
+            onClick={() => navigate('/register')}
+            className="font-medium text-primary hover:underline"
+          >
+            Regístrate
+          </button>
+        </p>
+
       </div>
     </div>
   );

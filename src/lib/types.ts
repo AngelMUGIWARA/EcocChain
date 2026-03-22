@@ -6,10 +6,14 @@ export type TipoResiduo = 'PET' | 'vidrio' | 'cartón' | 'metal';
 
 export interface Usuario {
   id: string;
-  wallet_address: string;
+  wallet_address: string | null;
   nombre: string;
   rol: Rol;
+  email: string | null;
+  company_name: string | null;
+  tx_hash: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Lote {
