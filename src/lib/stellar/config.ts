@@ -27,6 +27,8 @@ export const CONTRACT_IDS = {
   grtToken: import.meta.env.VITE_GRT_TOKEN_CONTRACT_ID,
 };
 
+console.log('Network:', CURRENT_NETWORK, CONFIG.networkPassphrase);
+
 // Validate config on load (will throw if contracts not configured)
 export function validateConfig() {
   if (!CONTRACT_IDS.batchRegistry || !CONTRACT_IDS.grtToken) {

@@ -16,7 +16,7 @@ const ROLES: { rol: Rol; desc: string }[] = [
 ];
 
 export function LoginPage() {
-  const { connectWallet, register, isConnecting, isRegistering } = useAuth();
+  const { connectWallet, register, isConnecting, isRegistering, error } = useAuth();
   const [nombre, setNombre] = useState('');
   const [selectedRol, setSelectedRol] = useState<Rol>('empresa');
   const [freighterInstalled, setFreighterInstalled] = useState<boolean | null>(null);
@@ -64,6 +64,12 @@ export function LoginPage() {
             <p className="text-sm text-center text-muted-foreground mb-5">
               Conecta tu wallet Freighter para comenzar
             </p>
+            {error && (
+              <Alert className="mb-4" variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button
               onClick={connectWallet}
               disabled={isConnecting || freighterInstalled === false}

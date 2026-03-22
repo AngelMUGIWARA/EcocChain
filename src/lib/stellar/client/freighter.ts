@@ -1,63 +1,74 @@
-import { isConnected, getPublicKey, signTransaction, getNetwork } from '@stellar/freighter-api';
+import {
+  isConnected,
+  getAddress,
+  requestAccess,
+  signTransaction,
+  getNetwork,
+} from '@stellar/freighter-api';
 import { StellarError, StellarErrorType } from '../contracts/contract-types';
 
 export class FreighterService {
   /**
    * Check if Freighter extension is installed
+   * v6: isConnected() returns { isConnected: boolean, error? }
    */
   async isInstalled(): Promise<boolean> {
-    return await isConnected();
+    const result = await isConnected();
+    if (result.error) return false;
+    return result.isConnected;
   }
 
   /**
    * Check if user is already connected (has granted access)
+   * v6: getAddress() returns { address: string, error? }
    */
   async isConnected(): Promise<boolean> {
-    try {
-      await getPublicKey();
-      return true;
-    } catch {
-      return false;
-    }
+    const result = await getAddress();
+    return !result.error && !!result.address;
   }
 
   /**
-   * Request access to user's wallet and get public key
-   * This will open Freighter popup for user approval
+   * Request access to user's wallet and get public key.
+   * Opens Freighter popup for user approval.
+   * v6: requestAccess() returns { address: string, error? }
    */
   async requestAccess(): Promise<string> {
-    try {
-      const publicKey = await getPublicKey();
-      return publicKey;
-    } catch (error: any) {
-      if (error.message?.includes('User declined')) {
+    const result = await requestAccess();
+    if (result.error) {
+      const msg = result.error.message ?? '';
+      if (msg.includes('User declined') || msg.includes('rejected')) {
         throw this.createError(StellarErrorType.USER_DECLINED);
       }
+      throw this.createError(StellarErrorType.WALLET_NOT_CONNECTED, msg);
+    }
+    if (!result.address) {
       throw this.createError(StellarErrorType.WALLET_NOT_CONNECTED);
     }
+    return result.address;
   }
 
   /**
    * Get public key of connected wallet (no popup if already connected)
+   * v6: getAddress() returns { address: string, error? }
    */
   async getPublicKey(): Promise<string> {
-    try {
-      return await getPublicKey();
-    } catch (error) {
+    const result = await getAddress();
+    if (result.error || !result.address) {
       throw this.createError(StellarErrorType.WALLET_NOT_CONNECTED);
     }
+    return result.address;
   }
 
   /**
-   * Get current network from Freighter
-   * Returns network passphrase string
+   * Get current network passphrase from Freighter
+   * v6: getNetwork() returns { network, networkPassphrase, error? }
    */
   async getNetwork(): Promise<string> {
-    try {
-      return await getNetwork();
-    } catch (error) {
+    const result = await getNetwork();
+    if (result.error) {
       throw this.createError(StellarErrorType.NETWORK_ERROR);
     }
+    return result.networkPassphrase;
   }
 
   /**
@@ -72,24 +83,25 @@ export class FreighterService {
   }
 
   /**
-   * Sign transaction with Freighter
-   * This will open Freighter popup for user to review and sign
-   * @param xdr - Transaction XDR string to sign
-   * @param network - Network passphrase
-   * @returns Signed transaction XDR string
+   * Sign transaction with Freighter.
+   * Opens Freighter popup for user to review and sign.
+   * v6: signTransaction() returns { signedTxXdr: string, signerAddress: string, error? }
    */
-  async signTransaction(xdr: string, network?: string): Promise<string> {
-    try {
-      const signedXdr = await signTransaction(xdr, {
-        network: network || undefined, // If not provided, uses current network
-      });
-      return signedXdr;
-    } catch (error: any) {
-      if (error.message?.includes('User declined')) {
+  async signTransaction(xdr: string, networkPassphrase?: string): Promise<string> {
+    const result = await signTransaction(xdr, {
+      networkPassphrase,
+    });
+    if (result.error) {
+      const msg = result.error.message ?? '';
+      if (msg.includes('User declined') || msg.includes('rejected')) {
         throw this.createError(StellarErrorType.USER_DECLINED);
       }
-      throw this.createError(StellarErrorType.CONTRACT_ERROR, error.message);
+      throw this.createError(StellarErrorType.CONTRACT_ERROR, msg);
     }
+    if (!result.signedTxXdr) {
+      throw this.createError(StellarErrorType.USER_DECLINED);
+    }
+    return result.signedTxXdr;
   }
 
   /**

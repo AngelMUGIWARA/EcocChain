@@ -66,36 +66,44 @@ export function useStellarAuth() {
   }, []);
 
   /**
-   * Register user role
+   * Register user role — calls Edge Function which registers on-chain + saves to Supabase
    */
   const registerRole = useCallback(async (nombre: string, rol: Rol) => {
     if (!state.walletAddress) {
       throw new Error('Wallet not connected');
     }
 
-    setState(s => ({ ...s, isRegistering: true, error: null }));
+    setState(s => ({ ...s, isConnecting: true, error: null }));
 
     try {
-      // Save user profile to Supabase
-      const { data: newUser, error: insertError } = await supabase
-        .from('users')
-        .insert({
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/register-role`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({
           wallet_address: state.walletAddress,
           nombre,
           rol,
-        })
-        .select()
-        .single();
+        }),
+      });
 
-      if (insertError) {
-        throw insertError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Error al registrar usuario');
       }
 
-      setUserProfile(newUser as Usuario);
-      setState(s => ({ ...s, isRegistering: false }));
+      setUserProfile(data.user as Usuario);
+      setState(s => ({ ...s, isConnecting: false, isRegistering: false }));
     } catch (error: any) {
       const stellarError = classifyError(error);
-      setState(s => ({ ...s, error: stellarError }));
+      setState(s => ({ ...s, isConnecting: false, error: stellarError }));
       throw error;
     }
   }, [state.walletAddress]);
