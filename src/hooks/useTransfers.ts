@@ -13,30 +13,35 @@ export function useTransfers(batchId: string | null) {
 
       const { data, error } = await supabase
         .from('transfers')
-        .select(`
-          *,
-          de_user:users!transfers_de_fkey(nombre),
-          para_user:users!transfers_para_fkey(nombre)
-        `)
+        .select('*')
         .eq('batch_id', batchId)
         .order('timestamp', { ascending: true });
 
       if (error) {
         console.error('Failed to fetch transfers:', error);
-        // Return empty array instead of throwing to gracefully handle missing data
         return [];
       }
 
-      return (data || []).map(record => ({
+      // Resolve wallet addresses → nombres via separate users query (no FK join exists)
+      const addresses = [...new Set((data ?? []).flatMap(r => [r.de, r.para]))];
+      const { data: usersData } = addresses.length
+        ? await supabase.from('users').select('wallet_address, nombre').in('wallet_address', addresses)
+        : { data: [] };
+
+      const nameByWallet: Record<string, string> = Object.fromEntries(
+        (usersData ?? []).map(u => [u.wallet_address ?? '', u.nombre])
+      );
+
+      return (data ?? []).map(record => ({
         id: record.id,
         lote_id: record.batch_id,
         de: record.de,
         para: record.para,
-        accion: record.accion,
+        accion: record.accion as Transferencia['accion'],
         tx_hash: record.tx_hash,
         timestamp: record.timestamp,
-        de_nombre: record.de_user?.nombre,
-        para_nombre: record.para_user?.nombre,
+        de_nombre: nameByWallet[record.de],
+        para_nombre: nameByWallet[record.para],
       })) as Transferencia[];
     },
     enabled: !!batchId,

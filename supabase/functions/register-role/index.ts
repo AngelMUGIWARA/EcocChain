@@ -33,12 +33,12 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { wallet_address, nombre, rol } = await req.json();
+    const { id, wallet_address, nombre, rol, email } = await req.json();
 
     // Validar inputs
-    if (!wallet_address || !nombre || !rol) {
+    if (!id || !wallet_address || !nombre || !rol) {
       return new Response(
-        JSON.stringify({ error: "wallet_address, nombre y rol son requeridos" }),
+        JSON.stringify({ error: "id, wallet_address, nombre y rol son requeridos" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -62,11 +62,11 @@ Deno.serve(async (req) => {
     // Supabase con service role (bypass RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Si el usuario ya existe, devolverlo sin error
+    // Si el usuario ya existe en public.users, devolverlo sin registrar de nuevo
     const { data: existingUser } = await supabase
       .from("users")
       .select("*")
-      .eq("wallet_address", wallet_address)
+      .eq("id", id)
       .maybeSingle();
 
     if (existingUser) {
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
     // ── Guardar usuario en Supabase ─────────────────────────────────────
     const { data: newUser, error: insertError } = await supabase
       .from("users")
-      .insert({ wallet_address, nombre, rol })
+      .insert({ id, wallet_address, nombre, rol, email: email ?? null })
       .select()
       .single();
 

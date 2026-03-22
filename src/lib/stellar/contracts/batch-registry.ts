@@ -263,7 +263,59 @@ export class BatchRegistryContract {
     };
   }
 
+  /**
+   * Build transaction to register a wallet's role on-chain (admin only).
+   * The admin wallet must sign this transaction.
+   */
+  async buildRegisterRoleTx(
+    admin: string,
+    targetAddress: string,
+    rol: string,
+  ): Promise<string> {
+    const account = await sorobanClient.getAccount(admin);
+
+    const params = [
+      new Address(admin).toScVal(),
+      new Address(targetAddress).toScVal(),
+      nativeToScVal(this.mapRolToContractSymbol(rol), { type: 'symbol' }),
+    ];
+
+    const tx = new TransactionBuilder(account, {
+      fee: BASE_FEE,
+      networkPassphrase: CONFIG.networkPassphrase,
+    })
+      .addOperation(this.contract.call('register_role', ...params))
+      .setTimeout(30)
+      .build();
+
+    const simulated = await sorobanClient.simulateTransaction(tx.toXDR());
+
+    if (rpc.Api.isSimulationError(simulated)) {
+      throw new Error(`Simulation failed: ${simulated.error}`);
+    }
+
+    const assembled = rpc.assembleTransaction(tx, simulated);
+    return assembled.build().toXDR();
+  }
+
   // Helper methods
+
+  /**
+   * Maps frontend Rol values to the contract's Symbol names.
+   * Contract uses short symbols that differ from the frontend labels.
+   */
+  private mapRolToContractSymbol(rol: string): string {
+    const map: Record<string, string> = {
+      empresa:       'empresa',
+      transportista: 'transport',
+      acopio:        'acopio',
+      recicladora:   'reciclado',
+      compradora:    'comprador',
+    };
+    const symbol = map[rol];
+    if (!symbol) throw new Error(`Unknown rol: ${rol}`);
+    return symbol;
+  }
 
   private mapTipoResiduoToSymbol(tipo: TipoResiduo): string {
     const map: Record<TipoResiduo, string> = {

@@ -180,6 +180,17 @@ export class BatchService {
     return result;
   }
 
+  /**
+   * Register a wallet's role on-chain (admin only).
+   * The connected Freighter wallet must be the contract admin.
+   */
+  async registerUserRole(targetWallet: string, rol: string): Promise<TransactionResult> {
+    const adminKey = await freighterService.getPublicKey();
+    const xdr = await getBatchRegistryContract().buildRegisterRoleTx(adminKey, targetWallet, rol);
+    const signedXdr = await freighterService.signTransaction(xdr);
+    return await getBatchRegistryContract().submitSignedTx(signedXdr);
+  }
+
   async getBatch(batchId: string) {
     return await getBatchRegistryContract().getBatch(batchId);
   }

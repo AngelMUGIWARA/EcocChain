@@ -1,11 +1,36 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useGRTBalance, useGRTTotalSupply } from '@/lib/stellar/hooks/useGRTBalance';
-import { Coins, Wallet, ExternalLink } from 'lucide-react';
+import { batchService } from '@/lib/stellar/services/batch-service';
+import { Rol, ROL_LABELS } from '@/lib/types';
+import { Coins, Wallet, ExternalLink, ShieldCheck, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+const ALL_ROLES: Rol[] = ['empresa', 'transportista', 'acopio', 'recicladora', 'compradora'];
 
 export function WalletPage() {
   const { user } = useAuth();
   const { data: balance = 0, isLoading: loadingBalance } = useGRTBalance(user?.wallet_address ?? null);
   const { data: totalSupply = 0, isLoading: loadingSupply } = useGRTTotalSupply();
+
+  const [adminWallet, setAdminWallet] = useState('');
+  const [adminRol, setAdminRol] = useState<Rol>('transportista');
+  const [registering, setRegistering] = useState(false);
+
+  const handleRegisterRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminWallet) return;
+    setRegistering(true);
+    try {
+      await batchService.registerUserRole(adminWallet, adminRol);
+      toast.success(`Rol "${ROL_LABELS[adminRol]}" registrado on-chain para ${adminWallet.slice(0, 8)}…`);
+      setAdminWallet('');
+    } catch (err: any) {
+      toast.error(err.message ?? 'Error al registrar rol');
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -54,6 +79,50 @@ export function WalletPage() {
           Ver en Stellar Expert
         </a>
       </div>
+      {/* Admin: registrar rol on-chain */}
+      <details className="rounded-lg border bg-card">
+        <summary className="flex cursor-pointer items-center gap-2 px-5 py-4 text-sm font-medium select-none">
+          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+          Admin — Registrar rol en contrato
+        </summary>
+        <form onSubmit={handleRegisterRole} className="border-t px-5 py-4 space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Tu wallet conectada debe ser el <strong>admin</strong> del contrato. Freighter pedirá firma.
+          </p>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Wallet a registrar</label>
+            <input
+              value={adminWallet}
+              onChange={e => setAdminWallet(e.target.value)}
+              placeholder="G... (Stellar public key)"
+              required
+              disabled={registering}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-muted-foreground">Rol</label>
+            <select
+              value={adminRol}
+              onChange={e => setAdminRol(e.target.value as Rol)}
+              disabled={registering}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
+            >
+              {ALL_ROLES.map(r => (
+                <option key={r} value={r}>{ROL_LABELS[r]}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={registering || !adminWallet}
+            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          >
+            {registering ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            {registering ? 'Registrando...' : 'Registrar rol on-chain'}
+          </button>
+        </form>
+      </details>
     </div>
   );
 }

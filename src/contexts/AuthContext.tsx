@@ -92,14 +92,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (signUpError) throw signUpError;
       if (!data.user) throw new Error('No se pudo crear la cuenta. Verifica tu correo si la confirmación está activa.');
 
-      const { error: profileError } = await supabase.rpc('create_user_profile', {
-        p_id:     data.user.id,
-        p_nombre: nombre,
-        p_rol:    rol,
-        p_email:  email,
-        p_wallet: walletAddress ?? null,
-      });
-      if (profileError) throw profileError;
+      if (walletAddress) {
+        // Con wallet → Edge Function registra rol on-chain Y guarda en Supabase (service role)
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const res = await fetch(`${supabaseUrl}/functions/v1/register-role`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({ id: data.user.id, wallet_address: walletAddress, nombre, rol, email }),
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error ?? 'Error al registrar rol en contrato');
+      } else {
+        // Sin wallet → solo Supabase
+        const { error: profileError } = await supabase.rpc('create_user_profile', {
+          p_id: data.user.id, p_nombre: nombre, p_rol: rol, p_email: email, p_wallet: null,
+        });
+        if (profileError) throw profileError;
+      }
 
       // Set profile immediately — onAuthStateChange will fire SIGNED_IN shortly after
       // but will skip fetchProfile because loading is already false and user is set.
@@ -146,8 +160,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  const switchRole = useCallback((_rol: Rol) => {
-    console.warn('switchRole: one wallet = one role. Role switching is not supported.');
+  // Demo mode: overrides role in local state only — no DB write, no wallet change.
+  const switchRole = useCallback((rol: Rol) => {
+    setUser(prev => prev ? { ...prev, rol } : prev);
   }, []);
 
   const value: AuthContextType = {
