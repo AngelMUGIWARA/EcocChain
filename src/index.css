@@ -132,6 +132,13 @@
     color: #C8A97A;
   }
 
+  /* Blockchain data — addresses, hashes, on-chain identifiers */
+  .font-blockchain {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
   /* Subtle noise texture overlay — apply on ::before */
   .noise::before {
     content: "";

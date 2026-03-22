@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { AppSidebar } from '@/components/AppSidebar';
+import { FloatingNavbar } from '@/components/FloatingNavbar';
 import { Outlet, Navigate } from 'react-router-dom';
 
 export function AppLayout() {
@@ -19,9 +19,17 @@ export function AppLayout() {
   if (!user) return <Navigate to="/login" replace />;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <AppSidebar />
-      <main className="flex-1 overflow-y-auto p-6 md:p-8">
+    <div className="min-h-screen bg-[#FCFAEB]">
+      <FloatingNavbar />
+      {/*
+        pl-[104px] clears the fixed navbar (w-20=80px outer + m-4=16px right margin = 96px)
+        plus 8px breathing room. pr/pt/pb use fixed rem values to avoid Tailwind
+        shorthand overrides (p-* would reset pl).
+      */}
+      <main
+        className="min-h-screen overflow-y-auto"
+        style={{ paddingLeft: '104px', paddingRight: '2rem', paddingTop: '2rem', paddingBottom: '2rem' }}
+      >
         <Outlet />
       </main>
     </div>

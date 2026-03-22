@@ -14,6 +14,12 @@ const ROLES: { rol: Rol; desc: string; icon: string }[] = [
   { rol: 'compradora',    desc: 'Compro material reciclado certificado',    icon: '🛒' },
 ];
 
+// Clase reutilizable para inputs con fondo opaco y texto oscuro
+const inputClass =
+  'w-full rounded-xl border border-[#C8A97A]/30 bg-[#FCFAEB]/90 py-2.5 text-sm text-[#09291D] ' +
+  'placeholder:text-slate-400 transition-all focus:outline-none ' +
+  'focus:border-[#C8A97A] focus:ring-2 focus:ring-[#C8A97A]/20 disabled:opacity-50';
+
 export function RegisterPage() {
   const { register, user, isConnecting, error, clearError, connectedWallet } = useAuth();
   const navigate = useNavigate();
@@ -83,13 +89,9 @@ export function RegisterPage() {
           className="text-center opacity-0 animate-fade-up"
           style={{ animationFillMode: 'forwards' }}
         >
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C8A97A]/30 bg-[#C8A97A]/10 shadow-lg shadow-black/30 backdrop-blur-sm">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4z" stroke="#C8A97A" strokeWidth="1.5" fill="none" />
-              <path d="M16 8c-2.5 3-4 6-4 8a4 4 0 0 0 8 0c0-2-1.5-5-4-8z" fill="#C8A97A" fillOpacity="0.7" />
-              <path d="M12 14c-2 1-3 2.5-3 4" stroke="#C8A97A" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
-              <path d="M20 14c2 1 3 2.5 3 4" stroke="#C8A97A" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
-            </svg>
+          {/* Logo */}
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C8A97A]/30 bg-[#C8A97A]/10 shadow-lg shadow-black/30 backdrop-blur-sm overflow-hidden">
+            <img src="/logo_ecotracer.svg" alt="EcoTracer" width="56" height="56" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#FCFAEB]">Crear cuenta</h1>
           <p className="mt-1.5 text-sm text-[#FCFAEB]/50 font-normal">
@@ -124,14 +126,14 @@ export function RegisterPage() {
               Nombre / Empresa <span className="text-[#C8A97A]">*</span>
             </label>
             <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+              <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 value={nombre}
                 onChange={e => setNombre(e.target.value)}
                 placeholder="Ej. Envases del Bajío S.A."
                 required
                 disabled={busy}
-                className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-3 py-2.5 text-sm text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                className={`${inputClass} pl-9 pr-3`}
               />
             </div>
           </div>
@@ -142,7 +144,7 @@ export function RegisterPage() {
               Correo electrónico <span className="text-[#C8A97A]">*</span>
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="email"
                 value={email}
@@ -150,7 +152,7 @@ export function RegisterPage() {
                 placeholder="correo@empresa.com"
                 required
                 disabled={busy}
-                className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-3 py-2.5 text-sm text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                className={`${inputClass} pl-9 pr-3`}
               />
             </div>
           </div>
@@ -161,7 +163,7 @@ export function RegisterPage() {
               Contraseña <span className="text-[#C8A97A]">*</span>
             </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -169,12 +171,12 @@ export function RegisterPage() {
                 placeholder="Mínimo 6 caracteres"
                 required
                 disabled={busy}
-                className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-10 py-2.5 text-sm text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                className={`${inputClass} pl-9 pr-10`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FCFAEB]/30 hover:text-[#FCFAEB]/70 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -228,13 +230,13 @@ export function RegisterPage() {
             </label>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Wallet className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+                <Wallet className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   value={walletAddress}
                   onChange={e => setWalletAddress(e.target.value)}
                   placeholder="G... (Stellar public key)"
                   disabled={busy}
-                  className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-3 py-2.5 text-sm font-mono text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 placeholder:font-sans transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                  className={`${inputClass} pl-9 pr-3 font-mono`}
                 />
               </div>
               <button
@@ -242,7 +244,7 @@ export function RegisterPage() {
                 onClick={handleLoadWallet}
                 disabled={busy}
                 title="Cargar desde Freighter"
-                className="flex items-center justify-center rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 px-3 text-[#FCFAEB]/50 transition-all hover:border-[#C8A97A]/40 hover:bg-[#C8A97A]/10 hover:text-[#C8A97A] disabled:opacity-50 shrink-0"
+                className="flex items-center justify-center rounded-xl border border-[#C8A97A]/30 bg-[#FCFAEB]/90 px-3 text-slate-500 transition-all hover:border-[#C8A97A]/60 hover:bg-[#C8A97A]/10 hover:text-[#C8A97A] disabled:opacity-50 shrink-0"
               >
                 {loadingWallet
                   ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -254,7 +256,7 @@ export function RegisterPage() {
             </p>
           </div>
 
-          {/* Submit */}
+          {/* Submit — color ámbar, sin cambios */}
           <button
             type="submit"
             disabled={busy || !nombre || !email || !password}

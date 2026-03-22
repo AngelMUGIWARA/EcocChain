@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Space Grotesk", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+        sans:    ["Space Grotesk", "system-ui", "sans-serif"],
+        grotesk: ["Space Grotesk", "system-ui", "sans-serif"],
+        mono:    ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -59,6 +60,16 @@ export default {
           DEFAULT: "hsl(var(--token))",
           foreground: "hsl(var(--token-foreground))",
         },
+        // EcoChain semantic aliases — matches green-loop-ledger token names
+        ecochain: {
+          primary:   "#09291D",
+          secondary: "#FCFAEB",
+          accent:    "#C8A97A",
+          muted:     "#705B3D",
+          surface:   "#F0EEDF",
+          border:    "#E5E3D4",
+        },
+
         // EcoChain brand tokens (direct hex access)
         forest: {
           DEFAULT: "#09291D",

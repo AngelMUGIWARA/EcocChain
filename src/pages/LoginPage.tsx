@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 // Organic network background — rendered as SVG, no external assets needed
 function MycelliumBackground() {
-  // Deterministic node positions (no random — avoids hydration mismatches)
   const nodes = [
     { cx: 80,  cy: 120 }, { cx: 200, cy: 60  }, { cx: 340, cy: 180 },
     { cx: 460, cy: 90  }, { cx: 580, cy: 200 }, { cx: 700, cy: 80  },
@@ -20,14 +19,12 @@ function MycelliumBackground() {
     { cx: 880, cy: 800 }, { cx: 1020, cy: 720 }, { cx: 1140, cy: 680 },
   ];
 
-  // Connect nodes by proximity
   const edges: [number, number][] = [];
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dx = nodes[i].cx - nodes[j].cx;
       const dy = nodes[i].cy - nodes[j].cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 220) edges.push([i, j]);
+      if (Math.sqrt(dx * dx + dy * dy) < 220) edges.push([i, j]);
     }
   }
 
@@ -45,20 +42,10 @@ function MycelliumBackground() {
           <stop offset="100%" stopColor="#C8A97A" stopOpacity="0" />
         </radialGradient>
       </defs>
-
-      {/* Edges */}
       {edges.map(([a, b], i) => (
-        <line
-          key={i}
-          x1={nodes[a].cx} y1={nodes[a].cy}
-          x2={nodes[b].cx} y2={nodes[b].cy}
-          stroke="#C8A97A"
-          strokeWidth="0.5"
-          strokeOpacity="0.15"
-        />
+        <line key={i} x1={nodes[a].cx} y1={nodes[a].cy} x2={nodes[b].cx} y2={nodes[b].cy}
+          stroke="#C8A97A" strokeWidth="0.5" strokeOpacity="0.15" />
       ))}
-
-      {/* Nodes */}
       {nodes.map((n, i) => (
         <g key={i} className="mycellium-node">
           <circle cx={n.cx} cy={n.cy} r="8" fill="url(#nodeGlow)" />
@@ -68,6 +55,12 @@ function MycelliumBackground() {
     </svg>
   );
 }
+
+// Inputs con fondo opaco y texto oscuro (contraste visible)
+const inputClass =
+  'w-full rounded-xl border border-[#C8A97A]/30 bg-[#FCFAEB]/90 py-2.5 text-sm text-[#09291D] ' +
+  'placeholder:text-slate-400 transition-all focus:outline-none ' +
+  'focus:border-[#C8A97A] focus:ring-2 focus:ring-[#C8A97A]/20 disabled:opacity-50';
 
 export function LoginPage() {
   const { login, user, isConnecting, error, clearError } = useAuth();
@@ -106,14 +99,9 @@ export function LoginPage() {
           className="text-center opacity-0 animate-fade-up"
           style={{ animationFillMode: 'forwards' }}
         >
-          {/* Logo mark */}
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#C8A97A]/30 bg-[#C8A97A]/10 shadow-lg shadow-black/30 backdrop-blur-sm">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4z" stroke="#C8A97A" strokeWidth="1.5" fill="none" />
-              <path d="M16 8c-2.5 3-4 6-4 8a4 4 0 0 0 8 0c0-2-1.5-5-4-8z" fill="#C8A97A" fillOpacity="0.7" />
-              <path d="M12 14c-2 1-3 2.5-3 4" stroke="#C8A97A" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
-              <path d="M20 14c2 1 3 2.5 3 4" stroke="#C8A97A" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
-            </svg>
+          {/* Logo */}
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#C8A97A]/30 bg-[#C8A97A]/10 shadow-lg shadow-black/30 backdrop-blur-sm overflow-hidden">
+            <img src="/logo_ecotracer.svg" alt="EcoTracer" width="64" height="64" className="h-full w-full object-contain" />
           </div>
 
           <h1 className="text-3xl font-semibold tracking-tight text-[#FCFAEB]">
@@ -158,7 +146,7 @@ export function LoginPage() {
               Correo electrónico
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="email"
                 value={email}
@@ -166,7 +154,7 @@ export function LoginPage() {
                 placeholder="correo@empresa.com"
                 required
                 disabled={isConnecting}
-                className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-3 py-2.5 text-sm text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                className={`${inputClass} pl-9 pr-3`}
               />
             </div>
           </div>
@@ -177,7 +165,7 @@ export function LoginPage() {
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FCFAEB]/30" />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -185,12 +173,12 @@ export function LoginPage() {
                 placeholder="Tu contraseña"
                 required
                 disabled={isConnecting}
-                className="w-full rounded-xl border border-[#FCFAEB]/12 bg-[#FCFAEB]/6 pl-9 pr-10 py-2.5 text-sm text-[#FCFAEB] placeholder:text-[#FCFAEB]/25 transition-all focus:outline-none focus:border-[#C8A97A]/50 focus:bg-[#FCFAEB]/10 disabled:opacity-50"
+                className={`${inputClass} pl-9 pr-10`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#FCFAEB]/30 hover:text-[#FCFAEB]/70 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

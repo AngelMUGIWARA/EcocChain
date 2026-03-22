@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBatches } from '@/hooks/useBatches';
 import { useBatchOperations } from '@/lib/stellar/hooks/useBatchOperations';
 import { useGRTBalance } from '@/lib/stellar/hooks/useGRTBalance';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function RecicladoraDashboard() {
   const { user } = useAuth();
@@ -82,44 +81,29 @@ export function RecicladoraDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Planta Recicladora</p>
+        <h2 className="text-3xl font-bold tracking-tight text-ecochain-primary">Dashboard</h2>
+        <p className="text-sm text-ecochain-muted mt-1">Planta Recicladora</p>
       </div>
 
-      <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Balance de Tokens GRT</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold">{grtBalance.toLocaleString()}</span>
-            <span className="text-sm text-muted-foreground">GRT</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            1 kg reciclado = 1 token GRT
-          </p>
-        </CardContent>
-      </Card>
-
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Por reciclar" value={porReciclar.length} icon={<Warehouse className="h-4 w-4" />} delay={0} />
-        <StatCard label="Reciclados" value={reciclados.length} icon={<Recycle className="h-4 w-4" />} delay={80} />
-        <StatCard label="Tokens emitidos" value={totalTokensEmitted} icon={<Coins className="h-4 w-4" />} variant="token" delay={160} />
+        <StatCard label="Por reciclar"    value={porReciclar.length}  icon={<Warehouse className="h-4 w-4" />} delay={0} />
+        <StatCard label="Reciclados"      value={reciclados.length}   icon={<Recycle className="h-4 w-4" />}  delay={80} />
+        <StatCard label="Balance GRT"     value={grtBalance}          icon={<Coins className="h-4 w-4" />}    variant="token" delay={160} />
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Lotes por procesar</h3>
+        <h3 className="text-sm font-bold mb-4 text-ecochain-primary">Lotes por procesar</h3>
         {loadingPorReciclar ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+          <div className="text-center py-8 text-sm text-ecochain-muted">Cargando...</div>
         ) : (
           <LoteTable lotes={porReciclar} onSelect={setSelectedLote} />
         )}
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Historial de reciclaje</h3>
+        <h3 className="text-sm font-medium mb-3 text-ecochain-primary">Historial de reciclaje</h3>
         {loadingReciclados ? (
-          <div className="text-center py-8 text-sm text-muted-foreground">Cargando...</div>
+          <div className="text-center py-8 text-sm text-ecochain-muted">Cargando...</div>
         ) : (
           <LoteTable lotes={reciclados} onSelect={setSelectedLote} showTokens />
         )}

@@ -1,6 +1,7 @@
 import { StatCard } from '@/components/StatCard';
 import { LoteTable } from '@/components/LoteTable';
 import { LoteDetail } from '@/components/LoteDetail';
+import { ExpandableActionButton } from '@/components/ExpandableActionButton';
 import { Package, Scale, Coins, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Lote, TIPO_RESIDUO_OPTIONS } from '@/lib/types';
@@ -30,13 +31,14 @@ export function EmpresaDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Dashboard</h2>
-          <p className="text-sm text-muted-foreground">Empresa Generadora</p>
+          <h2 className="text-3xl font-bold tracking-tight text-ecochain-primary">Dashboard</h2>
+          <p className="text-sm text-ecochain-muted mt-1">Empresa Generadora</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="gap-1.5" size="sm">
-          <Plus className="h-4 w-4" />
-          Crear lote
-        </Button>
+        <ExpandableActionButton
+          icon={<Plus className="h-4 w-4" />}
+          label="Crear lote"
+          onClick={() => setShowForm(!showForm)}
+        />
       </div>
 
       {showForm && <CreateLoteForm onClose={() => setShowForm(false)} />}
@@ -48,7 +50,7 @@ export function EmpresaDashboard() {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Mis lotes</h3>
+        <h3 className="text-sm font-bold mb-4 text-ecochain-primary">Mis lotes</h3>
         {isLoading ? (
           <div className="text-center py-8 text-sm text-muted-foreground">
             Cargando lotes...
@@ -85,13 +87,13 @@ function CreateLoteForm({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="rounded-lg border bg-card p-5 space-y-4 opacity-0 animate-scale-in" style={{ animationFillMode: 'forwards' }}>
-      <h3 className="font-semibold text-sm">Nuevo lote de residuos</h3>
+    <div className="rounded-xl border border-ecochain-accent/20 bg-white p-6 space-y-4 opacity-0 animate-scale-in" style={{ animationFillMode: 'forwards' }}>
+      <h3 className="font-bold text-lg text-ecochain-primary">Nuevo lote de residuos</h3>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-xs text-muted-foreground">Tipo de residuo</label>
+          <label className="text-xs font-semibold text-ecochain-muted">Tipo de residuo</label>
           <select
-            className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
+            className="mt-2 w-full rounded-lg border border-ecochain-accent/20 bg-white px-3 py-2.5 text-sm text-ecochain-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ecochain-accent/30"
             value={tipoResiduo}
             onChange={e => setTipoResiduo(e.target.value as any)}
           >
@@ -99,11 +101,11 @@ function CreateLoteForm({ onClose }: { onClose: () => void }) {
           </select>
         </div>
         <div>
-          <label className="text-xs text-muted-foreground">Peso (kg)</label>
+          <label className="text-xs font-semibold text-ecochain-muted">Peso (kg)</label>
           <input
             type="number"
             placeholder="250"
-            className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm"
+            className="mt-2 w-full rounded-lg border border-ecochain-accent/20 bg-white px-3 py-2.5 text-sm text-ecochain-primary transition-colors focus:outline-none focus:ring-2 focus:ring-ecochain-accent/30"
             value={pesoKg}
             onChange={e => setPesoKg(e.target.value)}
             min="1"
@@ -115,7 +117,7 @@ function CreateLoteForm({ onClose }: { onClose: () => void }) {
           {error.userMessage}
         </div>
       )}
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end pt-2 border-t border-ecochain-accent/15">
         <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
           Cancelar
         </Button>
